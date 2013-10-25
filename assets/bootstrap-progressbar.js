@@ -19,7 +19,9 @@
 		if (hasOptions && typeof options.step == 'number') {
 			this.setStep(options.step);
 		}
-		this.element.html($(DRPGlobal.template));
+
+		this.setTemplate(this.markers)
+		this.element.html(this.template);
 	};
 
 	ProgressBar.prototype = {
@@ -46,6 +48,20 @@
 			this.step = parseInt(step);
 		},
 
+		setTemplate: function (markers) {
+			template = '<div class="progress progress-mini progress-striped active" style="height: 10px;"><span class="state-position badge" style="position: absolute; left: 0%; top: -5px;">0</span>'
+			
+			for(var i=0; i < markers.length; i++) {
+				template += '<div class="bar ' + markers[i].barClass + ' progress-bar progress-' + markers[i].barClass +'" style="width: 0%;left: -1%"></div>';
+				position = 100;
+				if(i < markers.length-1) {
+					position = markers[i+1].position;
+				}
+				template += '<span class="badge ' + markers[i].badgeClass + '" style="position: absolute; left: ' + (position - 1) + '%; top: -5px;">' + (i + 1) + '</span>';
+			}
+			return this.template = template + '</div>';
+		},
+
 		setPosition: function (position) {
 			position = parseInt(position);
 			if (position < 0)
@@ -57,7 +73,7 @@
 			this.percent = Math.ceil((this.position / this.maximum) * 100);
 			try {
 				for(var i = 0; i < this.markers.length; i++) {
-					// 使每一个if代码块都执行一次
+					// 使每一个if代码块都只执行一次
 					if(i == 0) {
 						if (this.percent <= this.markers[i+1].position) {
 							for(j in this.markers) {
@@ -127,24 +143,14 @@
 
 	$.fn.progressbar.defaults = {
 		markers: 
-			[ { name: "step0", position: 0, barClass: "bar-success", badgeClass: "badge-success" }, 
-			  { name: "step1", position: 25, barClass: "bar-warning", badgeClass: "badge-warning" }, 
-			  { name: "step2", position: 50, barClass: "bar-danger", badgeClass: "badge-important" },
-			  { name: "step3", position: 75, barClass: "bar-info" , badgeClass: "badge-info" } ],
+			[ { name: "step0", position: 0, barClass: "bar-info" , badgeClass: "badge-info" },
+				{ name: "step1", position: 25, barClass: "bar-success", badgeClass: "badge-success" }, 
+			  { name: "step2", position: 50, barClass: "bar-warning", badgeClass: "badge-warning" }, 
+			  { name: "step3", position: 75, barClass: "bar-danger", badgeClass: "badge-important" }
+			],
 		maximum: 100,
 		step: 10
 	};
 
 	$.fn.progressbar.Constructor = ProgressBar;
-	
-	var DRPGlobal = {};
-	markers = $.fn.progressbar.defaults.markers
-	var template = '<div class="progress progress-mini progress-striped active" style="height: 10px;"><span class="state-position badge" style="position: absolute; left: 0%; top: -5px;">0</span>'
-	
-	for(i in markers) {
-		template += '<div class="bar ' + markers[i].barClass + ' progress-bar progress-' + markers[i].barClass +'" style="width: 0%;"></div>';
-		template += '<span class="badge ' + markers[i].badgeClass + '" style="position: absolute; left: ' + markers[i].position + '%; top: -5px;">' + i + '</span>';
-	}
-	DRPGlobal.template = template + '</div>';
-
 } (window.jQuery);

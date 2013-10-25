@@ -30,7 +30,15 @@
 
 <script type="text/javascript">
 	$(function () {
-		$('#progressbar').progressbar();
+		$('#progressbar').progressbar({
+			markers: 
+			[ { name: "step0", position: 0, barClass: "bar-info" , badgeClass: "badge-info" },
+				{ name: "step1", position: 33, barClass: "bar-success", badgeClass: "badge-success" }, 
+			  { name: "step2", position: 66, barClass: "bar-warning", badgeClass: "badge-warning" }
+			],
+			maximum: 90,
+			step: 20
+		});
 		$('#progressbar').on("positionChanged", function (e) {
 			viewModel.percent(e.percent);
 		});
@@ -39,7 +47,7 @@
 
 	var viewModel = {
 		percent: ko.observable(0),
-		step: ko.observable(10),
+		step: ko.observable(20),
 		maximum: ko.observable(100),
 		position: ko.observable(0),
 		interval: undefined,
@@ -67,7 +75,7 @@
 					self.interval = undefined;
 					self.isRunning(false);
 				}
-			}, 500);
+			}, 100);
 		}
 	};
 
