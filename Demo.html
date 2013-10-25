@@ -31,14 +31,7 @@
 <script type="text/javascript">
 	$(function () {
 		$('#progressbar').progressbar({
-			averageStep: false,
-			defaultBadge: false,
-			markers: 
-				[ { badgeClass: "badge-info" },
-					{ badgeClass: "badge-success" }, 
-					{ badgeClass: "badge-warning" }, 
-					{ badgeClass: "badge-important" }
-				]			
+			barLength: 3			
 		});
 		$('#progressbar').on("positionChanged", function (e) {
 			viewModel.percent(e.percent);

@@ -36,24 +36,36 @@
 			this.setMarkers(options.markers);
 		}
 
+		// this.barLength = $.fn.progressbar.defaults.barLength;
+		if (hasOptions && typeof options.barLength == 'number') {
+			this.setBarLength(options.barLength);
+		}
+		this.setTemplate();
+
 		if (hasOptions && typeof options.minimum == 'number') {
-			this.position = this.minimum = options.minimum;
-			this.setPosition(this.position)
+			this.minimum = options.minimum;
+			this.stepIt(this.minimum)
 		}
 	};
 
 	ProgressBar.prototype = {
 		constructor: ProgressBar,
 
-		stepIt: function () {
+		stepIt: function (move) {
+			if (move == null) {
+				move = this.step;
+			}
 			if (this.position < this.maximum)
-				this.position += this.step;
+				this.position += move;
 			this.setPosition(this.position);
+		},
+
+		setBarLength: function (barLength) {
+			this.barLength = barLength;
 		},
 
 		setMarkers: function (markers) {
 			this.markers = markers;
-			this.setTemplate()
 		},
 
 		setBarClass: function (barClass) {
@@ -85,16 +97,24 @@
 					'<span class="state-position badge" style="position: absolute; left: 0%; top: -5px;">0</span>' + 
 						'<div class="bar ' + this.barClass + ' progress-bar progress-' + this.barClass +'" style="width: 0%;left: -1%"></div>';
 
-			barLength = (this.maximum - this.minimum)/this.markers.length;
-			for(var i = 0; i < this.markers.length; i++) {
+			iterLength = this.markers.length;
+			if (this.barLength != null) {
+				if (this.barLength > 0 && this.barLength <= this.markers.length) {
+					iterLength = this.barLength;
+					this.averageStep = true;
+				}				
+			}
+			
+			iterSize = 100/iterLength;
+			for(var i = 0; i < iterLength; i++) {
 				var position = this.markers[i].position;
-				if(this.averageStep || (position == null)) {
-					position = barLength*(i+1);					
+				if (this.averageStep || (position == null)) {
+					position = iterSize*(i+1);					
 				}
 
 				var badgeClass = this.markers[i].badgeClass;
 				if(this.defaultBadge || (badgeClass == null)) {
-					badgeClasses = ['', 'badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse'];
+					badgeClasses = ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', ''];
 					badgeClass = badgeClasses[i % (badgeClasses.length)];
 				}
 				template += '<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (position-1) + '%; top: -5px;">' + (i + 1) + '</span>';
@@ -155,11 +175,12 @@
 		step: 20,
 		minimum: 0,
 		maximum: 100,
+		barLength: 4,
 		averageStep: true,
 		defaultBadge: true,
 		barClass: "bar-danger",
 		markers: 
-			[ { position: 25, badgeClass: "badge-info" },
+			[   { position: 25, badgeClass: "badge-info" },
 				{ position: 50, badgeClass: "badge-success" }, 
 				{ position: 75, badgeClass: "badge-warning" }, 
 				{ position: 100, badgeClass: "badge-important" }
