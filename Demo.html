@@ -30,19 +30,13 @@
 <script type="text/javascript">
 	$(function () {
 		bar = $('#progressbar');
-		bar.isRunning = false;
-		bar.isOver = false;
 		bar.on("positionChanged", function (e) {
-			var percent = e.percent;
-			if (percent >= 100) {
-				percent = 100;
-				bar.isOver = true;
-			};
-			$(".badge.count").html(percent+'%');
+			$(".badge.count").html(e.percent+'%');
 		});
 
 		bar.progressbar({
-			minimum: 10,
+			step: 20,
+			minimum: 8,
 			barLength: 3			
 		});
 
@@ -52,23 +46,10 @@
 
 		$('.reset-btn').bind("click", function (e) {
 			bar.progressbar('reset');
-			bar.isOver = false;
 		});
 		
 		$('.start-btn').bind("click", function (e) {
-			if (bar.isRunning)
-				return;
-			bar.progressbar('reset');
-			bar.isRunning = true;
-
-			bar.interval = setInterval(function () {
-				bar.progressbar('stepIt');
-				if (bar.isOver) {
-					clearInterval(bar.interval);
-					bar.interval = undefined;
-					bar.isRunning = false;
-				}
-			}, 250);
+			bar.progressbar('start');
 		});
 	});
 </script>

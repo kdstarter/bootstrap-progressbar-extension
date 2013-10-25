@@ -2,6 +2,9 @@
 	var ProgressBar = function (element, options) {
 		this.percent = 0;
 		this.position = 0;
+		this.isOver = false;
+		this.isRunning = false;
+
 		this.element = $(element);
 		var hasOptions = typeof options == 'object';
 		this.minimum = $.fn.progressbar.defaults.minimum;
@@ -135,11 +138,29 @@
 			}
 		},
 
+		start: function (position) {
+			if (this.isRunning)
+				return;
+			this.reset();
+			this.isRunning = true;
+
+			var self = this;
+			this.interval = setInterval(function () {
+				self.stepIt();
+				if (self.isOver) {
+					clearInterval(self.interval);
+					self.interval = undefined;
+					self.isRunning = false;
+				}
+			}, 250);
+		},
+
 		reset: function () {
 			this.position = this.minimum;
 			this.percent = this.minimum;
 			this._triggerPositionChanged();
 			this.element.find("." + this.barClass).css('width', this.minimum + "%");
+			this.isOver = false;
 		},
 
 		_triggerPositionChanged: function () {
@@ -148,6 +169,11 @@
 				position: this.position,
 				percent: this.percent
 			});
+			if (this.percent >= 100) {
+				this.percent = 100;
+				this.isOver = true;
+				return;
+			};
 		}
 	};
 

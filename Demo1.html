@@ -63,6 +63,7 @@
 			this.isRunning(true);
 
 			var self = this;
+			debugger
 			this.interval = setInterval(function () {
 				$('#progressbar').progressbar('stepIt');
 				if (self.percent() >= 100) {
