@@ -31,15 +31,14 @@
 <script type="text/javascript">
 	$(function () {
 		$('#progressbar').progressbar({
-			step: 20,
-			maximum: 100,
-			barClass: "bar-danger",
+			averageStep: false,
+			defaultBadge: false,
 			markers: 
-			[ { position: 25, badgeClass: "badge-info" },
-				{ position: 50, badgeClass: "badge-success" }, 
-				{ position: 75, badgeClass: "badge-warning" }, 
-				{ position: 100, badgeClass: "badge-important" }
-			]			
+				[ { badgeClass: "badge-info" },
+					{ badgeClass: "badge-success" }, 
+					{ badgeClass: "badge-warning" }, 
+					{ badgeClass: "badge-important" }
+				]			
 		});
 		$('#progressbar').on("positionChanged", function (e) {
 			viewModel.percent(e.percent);

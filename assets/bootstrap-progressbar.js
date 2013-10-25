@@ -1,9 +1,10 @@
 ﻿!function ($) {
 	var ProgressBar = function (element, options) {
-		this.element = $(element);
-		this.position = 0;
 		this.percent = 0;
+		this.position = 0;
+		this.element = $(element);
 		var hasOptions = typeof options == 'object';
+		this.minimum = $.fn.progressbar.defaults.minimum;
 
 		this.step = $.fn.progressbar.defaults.step;
 		if (hasOptions && typeof options.step == 'number') {
@@ -15,6 +16,16 @@
 			this.setMaximum(options.maximum);
 		}
 
+		this.averageStep = $.fn.progressbar.defaults.averageStep;
+		if (hasOptions && typeof options.averageStep == 'boolean') {
+			this.setAverageStep(options.averageStep);
+		}
+
+		this.defaultBadge = $.fn.progressbar.defaults.defaultBadge;
+		if (hasOptions && typeof options.defaultBadge == 'boolean') {
+			this.setDefaultBadge(options.defaultBadge);
+		}
+
 		this.barClass = $.fn.progressbar.defaults.barClass;
 		if (hasOptions && typeof options.barClass == 'string') {
 			this.setBarClass(options.barClass);
@@ -23,6 +34,11 @@
 		this.markers = $.fn.progressbar.defaults.markers;
 		if (hasOptions && typeof options.markers == 'object') {
 			this.setMarkers(options.markers);
+		}
+
+		if (hasOptions && typeof options.minimum == 'number') {
+			this.position = this.minimum = options.minimum;
+			this.setPosition(this.position)
 		}
 	};
 
@@ -48,9 +64,17 @@
 			this.maximum = parseInt(maximum);
 		},
 
+		setAverageStep: function (averageStep) {
+			this.averageStep = averageStep;
+		},
+
+		setDefaultBadge: function (defaultBadge) {
+			this.defaultBadge = defaultBadge;
+		},
+
 		setStep: function (step) {
 			step = parseInt(step);
-			if (step <= 0)
+			if(step <= 0)
 				step = 1;
 			this.step = parseInt(step);
 		},
@@ -61,8 +85,19 @@
 					'<span class="state-position badge" style="position: absolute; left: 0%; top: -5px;">0</span>' + 
 						'<div class="bar ' + this.barClass + ' progress-bar progress-' + this.barClass +'" style="width: 0%;left: -1%"></div>';
 
+			barLength = (this.maximum - this.minimum)/this.markers.length;
 			for(var i = 0; i < this.markers.length; i++) {
-				template += '<span class="badge ' + this.markers[i].badgeClass + '" style="position: absolute; left: ' + (this.markers[i].position-1) + '%; top: -5px;">' + (i + 1) + '</span>';
+				var position = this.markers[i].position;
+				if(this.averageStep || (position == null)) {
+					position = barLength*(i+1);					
+				}
+
+				var badgeClass = this.markers[i].badgeClass;
+				if(this.defaultBadge || (badgeClass == null)) {
+					badgeClasses = ['', 'badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse'];
+					badgeClass = badgeClasses[i % (badgeClasses.length)];
+				}
+				template += '<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (position-1) + '%; top: -5px;">' + (i + 1) + '</span>';
 			}
 			this.element.html(template + '</div>')
 		},
@@ -77,27 +112,7 @@
 			this.position = position;
 			this.percent = Math.ceil((this.position / this.maximum) * 100);
 			try {
-				current = this.percent - this.step;
-				length = this.markers.length;
-				if (current >= 0 && current < this.markers[0].position) {
-					// 当前进度在step0
-					this.element.find('.' + this.barClass).css('width', this.percent + "%");
-					return;
-				}
-
-				for(var i = 1; i <= length-2; i++) {
-					if (current >= this.markers[i-1].position && current < this.markers[i].position) {
-						// 当前进度在step1 —— step(n-2)
-						this.element.find('.' + this.barClass).css('width', this.percent + "%");
-						return;
-					}
-				}
-
-				if (current >= this.markers[length-2].position && current < this.markers[length-1].position) {
-					// 当前进度在step(n-1)
-					this.element.find('.' + this.barClass).css('width', this.percent + "%");
-					return;
-				}
+				this.element.find('.' + this.barClass).css('width', this.percent + "%");
 			} finally {
 				this._triggerPositionChanged();
 			}
@@ -107,7 +122,7 @@
 			this.position = 0;
 			this.percent = 0;
 			this._triggerPositionChanged();
-			this.element.find("." + this.barClass).css('width', "0%");
+			this.element.find("." + this.barClass).css('width', this.minimum + "%");
 		},
 
 		_triggerPositionChanged: function () {
@@ -138,7 +153,10 @@
 
 	$.fn.progressbar.defaults = {
 		step: 20,
+		minimum: 0,
 		maximum: 100,
+		averageStep: true,
+		defaultBadge: true,
 		barClass: "bar-danger",
 		markers: 
 			[ { position: 25, badgeClass: "badge-info" },
