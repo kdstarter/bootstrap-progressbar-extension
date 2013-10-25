@@ -44,19 +44,16 @@
 
 		if (hasOptions && typeof options.minimum == 'number') {
 			this.minimum = options.minimum;
-			this.stepIt(this.minimum)
 		}
+		this.reset();
 	};
 
 	ProgressBar.prototype = {
 		constructor: ProgressBar,
 
-		stepIt: function (move) {
-			if (move == null) {
-				move = this.step;
-			}
+		stepIt: function () {
 			if (this.position < this.maximum)
-				this.position += move;
+				this.position += this.step;
 			this.setPosition(this.position);
 		},
 
@@ -114,7 +111,7 @@
 
 				var badgeClass = this.markers[i].badgeClass;
 				if(this.defaultBadge || (badgeClass == null)) {
-					badgeClasses = ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', ''];
+					var badgeClasses = ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', ''];
 					badgeClass = badgeClasses[i % (badgeClasses.length)];
 				}
 				template += '<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (position-1) + '%; top: -5px;">' + (i + 1) + '</span>';
@@ -139,8 +136,8 @@
 		},
 
 		reset: function () {
-			this.position = 0;
-			this.percent = 0;
+			this.position = this.minimum;
+			this.percent = this.minimum;
 			this._triggerPositionChanged();
 			this.element.find("." + this.barClass).css('width', this.minimum + "%");
 		},
@@ -172,7 +169,7 @@
 	};
 
 	$.fn.progressbar.defaults = {
-		step: 20,
+		step: 10,
 		minimum: 0,
 		maximum: 100,
 		barLength: 4,
