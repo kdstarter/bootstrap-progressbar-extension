@@ -29,28 +29,45 @@
 
 <script type="text/javascript">
 	$(function () {
-		$('#progressbar').on("positionChanged", function (e) {
-			$(".badge.count").html(e.percent+'%');
+		bar = $('#progressbar');
+		bar.isRunning = false;
+		bar.isOver = false;
+		bar.on("positionChanged", function (e) {
+			var percent = e.percent;
+			if (percent >= 100) {
+				percent = 100;
+				bar.isOver = true;
+			};
+			$(".badge.count").html(percent+'%');
 		});
 
-		bar = $('#progressbar').progressbar({
+		bar.progressbar({
 			minimum: 10,
 			barLength: 3			
 		});
 
 		$('.step-btn').bind("click", function (e) {
-			$('#progressbar').progressbar('stepIt');
+			bar.progressbar('stepIt');
 		});
 
 		$('.reset-btn').bind("click", function (e) {
-			$('#progressbar').progressbar('reset');
+			bar.progressbar('reset');
+			bar.isOver = false;
 		});
 		
 		$('.start-btn').bind("click", function (e) {
-			var self = this;
-			$('#progressbar').progressbar('reset');
-			this.interval = setInterval(function () {
-				$('#progressbar').progressbar('stepIt');
+			if (bar.isRunning)
+				return;
+			bar.progressbar('reset');
+			bar.isRunning = true;
+
+			bar.interval = setInterval(function () {
+				bar.progressbar('stepIt');
+				if (bar.isOver) {
+					clearInterval(bar.interval);
+					bar.interval = undefined;
+					bar.isRunning = false;
+				}
 			}, 250);
 		});
 	});
