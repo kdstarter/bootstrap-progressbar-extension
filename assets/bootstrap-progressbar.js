@@ -39,14 +39,14 @@
 			this.setMarkers(options.markers);
 		}
 
-		// this.barLength = $.fn.progressbar.defaults.barLength;
-		if (hasOptions && typeof options.barLength == 'number') {
-			this.setBarLength(options.barLength);
+		// this.barSize = $.fn.progressbar.defaults.barSize;
+		if (hasOptions && typeof options.barSize == 'number') {
+			this.setBarSize(options.barSize);
 		}
 		this.setTemplate();
 
 		if (hasOptions && typeof options.minimum == 'number') {
-			this.minimum = options.minimum;
+			this.setMinimum(options.minimum)
 		}
 		this.reset();
 	};
@@ -60,8 +60,8 @@
 			this.setPosition(this.position);
 		},
 
-		setBarLength: function (barLength) {
-			this.barLength = barLength;
+		setBarSize: function (barSize) {
+			this.barSize = barSize;
 		},
 
 		setMarkers: function (markers) {
@@ -73,7 +73,15 @@
 		},
 
 		setMaximum: function (maximum) {
-			this.maximum = parseInt(maximum);
+			if (maximum > 0 && maximum <= 100){
+				this.maximum = parseInt(maximum);
+			}
+		},
+
+		setMinimum: function (minimum) {
+			if (minimum > 0 && minimum < this.maximum) {
+				this.minimum = parseInt(minimum);
+			}
 		},
 
 		setAverageStep: function (averageStep) {
@@ -97,19 +105,19 @@
 					'<span class="state-position badge" style="position: absolute; left: 0%; top: -5px;">0</span>' + 
 						'<div class="bar ' + this.barClass + ' progress-bar progress-' + this.barClass +'" style="width: 0%;left: -1%"></div>';
 
-			iterLength = this.markers.length;
-			if (this.barLength != null) {
-				if (this.barLength > 0 && this.barLength <= this.markers.length) {
-					iterLength = this.barLength;
+			iterSize = this.markers.length;
+			if (this.barSize != null) {
+				if (this.barSize > 0 && this.barSize <= this.markers.length) {
+					iterSize = this.barSize;
 					this.averageStep = true;
 				}				
 			}
 			
-			iterSize = 100/iterLength;
-			for(var i = 0; i < iterLength; i++) {
+			this.step = 100/iterSize;
+			for(var i = 0; i < iterSize; i++) {
 				var position = this.markers[i].position;
 				if (this.averageStep || (position == null)) {
-					position = iterSize*(i+1);					
+					position = this.step*(i+1);					
 				}
 
 				var badgeClass = this.markers[i].badgeClass;
@@ -126,11 +134,13 @@
 			position = parseInt(position);
 			if (position < 0)
 				position = 0;
-			if (position > this.maximum)
+			if (position >= this.maximum) {
 				position = this.maximum;
+				this.isOver = true;
+			}
 
-			this.position = position;
-			this.percent = Math.ceil((this.position / this.maximum) * 100);
+			this.percent = this.position = position;
+			// this.percent = Math.ceil((this.position / this.maximum) * 100);
 			try {
 				this.element.find('.' + this.barClass).css('width', this.percent + "%");
 			} finally {
@@ -169,11 +179,6 @@
 				position: this.position,
 				percent: this.percent
 			});
-			if (this.percent >= 100) {
-				this.percent = 100;
-				this.isOver = true;
-				return;
-			};
 		}
 	};
 
@@ -196,14 +201,14 @@
 
 	$.fn.progressbar.defaults = {
 		step: 10,
+		barSize: 4,
 		minimum: 0,
 		maximum: 100,
-		barLength: 4,
 		averageStep: true,
 		defaultBadge: true,
 		barClass: "bar-danger",
 		markers: 
-			[   { position: 25, badgeClass: "badge-info" },
+			[ { position: 25, badgeClass: "badge-info" },
 				{ position: 50, badgeClass: "badge-success" }, 
 				{ position: 75, badgeClass: "badge-warning" }, 
 				{ position: 100, badgeClass: "badge-important" }

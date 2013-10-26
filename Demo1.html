@@ -31,8 +31,9 @@
 <script type="text/javascript">
 	$(function () {
 		$('#progressbar').progressbar({
+			barSize: 3,			
 			minimum: 10,
-			barLength: 3			
+			maximum: 90
 		});
 		$('#progressbar').on("positionChanged", function (e) {
 			viewModel.percent(e.percent);
@@ -41,10 +42,10 @@
 	});
 
 	var viewModel = {
-		percent: ko.observable(0),
+		percent: ko.observable(10),
 		step: ko.observable(20),
-		maximum: ko.observable(100),
-		position: ko.observable(0),
+		maximum: ko.observable(90),
+		position: ko.observable(10),
 		interval: undefined,
 		isRunning: ko.observable(false),
 
@@ -63,7 +64,6 @@
 			this.isRunning(true);
 
 			var self = this;
-			debugger
 			this.interval = setInterval(function () {
 				$('#progressbar').progressbar('stepIt');
 				if (self.percent() >= 100) {
