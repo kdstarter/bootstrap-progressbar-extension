@@ -1,4 +1,9 @@
-﻿!function ($) {
+﻿/*
+	Progressbar extension based on bootstrap's progressbar, contributed by agilejzl, 
+	see more information at https://github.com/agilejzl/bootstrap-progressbar-extension.
+*/
+
+!function ($) {
 	var ProgressBar = function (element, options) {
 		this.percent = 0;
 		this.position = 0;
@@ -127,7 +132,7 @@
 				}
 				template += '<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (position-1) + '%; top: -5px;">' + (i + 1) + '</span>';
 			}
-			this.element.html(template + '</div>')
+			this.element.html(template + '</div>').css("position", "relative");
 		},
 
 		setPosition: function (position) {
