@@ -87,8 +87,17 @@
 			this.markerLabels = markerLabels;
 		},
 
+		getMarkerLabel: function (i) {
+			// return this.markerLabels[i % (this.markerLabels.length)];
+			return this.markerLabels[i] == null ? '' : this.markerLabels[i];
+		},
+
 		setMarkers: function (markers) {
 			this.markers = markers;
+		},
+
+		getMarker: function (i) {
+			return this.markers[i] == null ? this.max_position : this.markers[i];
 		},
 
 		setMaxPosition: function () {
@@ -147,7 +156,7 @@
 
 			iterSize = this.markers.length;
 			if (this.barSize != null) {
-				if (this.barSize > 0 && this.barSize <= this.markers.length) {
+				if (this.barSize > 0) {
 					iterSize = this.barSize;
 					this.averageStep = true;
 				}				
@@ -220,7 +229,7 @@
 
 		setCurrentBadge: function () {
 			$(".current-badge", this.element).css('left', (this.percent-1) + '%');
-			if(this.percent > 0 && this.percent <= 100) {
+			if(this.percent >= 0 && this.percent <= 100) {
 				$(".current-badge", this.element).html(this.changedLabel);
 			} else {
 				$(".current-badge", this.element).html('');
@@ -272,7 +281,7 @@
 		defaultBadge: true,
 		barClass: "bar-danger",
 		markers: [33, 66, 100],
-		markerLabels: ['33', '66', '100'],
+		markerLabels: [''],
 		badgeClasses: ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', '']
 	};
 

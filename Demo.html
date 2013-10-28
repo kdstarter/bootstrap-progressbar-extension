@@ -35,14 +35,14 @@
 		})
 		bar.bind('labelLoaded', function(event) {
 			i = event.labelIndex;
-			event.bar.loadedLabel = event.bar.markers[i]/event.bar.zoom_percent+'人/￥'+event.bar.markerLabels[i];
+			event.bar.loadedLabel = event.bar.getMarker(i)/event.bar.zoom_percent+'人/￥'+event.bar.getMarkerLabel(i);
 		})
 		bar.progressbar({
 			step: 20,
-			minimum: 10,
+			minimum: 0,
 			maximum: 180,
-			// barSize: 3,
-			markers: [60, 100 ,200],
+			barSize: 3,
+			// markers: [60, 100 ,200],
 			badgeClasses: ['badge-info'],
 			markerLabels: ['30', '66', '100']
 		});
