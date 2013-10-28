@@ -14,7 +14,7 @@
 	<h2>进度条示例</h2>
 	<div>
 		<div id="progressbar"></div>
-		<span class="pull-right badge count">0%</span>
+		<span class="pull-right badge count"></span>
 	</div>
 
 	<label>最大值</label><input type="text" class="input-mini maximum-input">
@@ -30,14 +30,10 @@
 <script type="text/javascript">
 	$(function () {
 		bar = $('#progressbar');
-		bar.on("positionChanged", function (e) {
-			$(".badge.count").html(e.percent+'%');
-		});
-
 		bar.progressbar({
 			step: 20,
 			minimum: 10,
-			maximum: 90,
+			maximum: 100,
 			barSize: 3			
 		});
 

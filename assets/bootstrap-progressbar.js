@@ -79,13 +79,13 @@
 
 		setMaximum: function (maximum) {
 			if (maximum > 0 && maximum <= 100){
-				this.maximum = parseInt(maximum);
+				this.maximum = ~~maximum;
 			}
 		},
 
 		setMinimum: function (minimum) {
 			if (minimum > 0 && minimum < this.maximum) {
-				this.minimum = parseInt(minimum);
+				this.minimum = ~~minimum;
 			}
 		},
 
@@ -98,17 +98,18 @@
 		},
 
 		setStep: function (step) {
-			step = parseInt(step);
+			step = ~~step;
 			if(step <= 0)
 				step = 1;
-			this.step = parseInt(step);
+			this.step = ~~step;
 		},
 
 		setTemplate: function () {
 			template = 
-				'<div class="progress progress-mini progress-striped active" style="height: 10px;">' + 
-					'<span class="state-position badge" style="position: absolute; left: 0%; top: -5px;">0</span>' + 
-						'<div class="bar ' + this.barClass + ' progress-bar progress-' + this.barClass +'" style="width: 0%;left: -1%"></div>';
+				'<div class="progress progress-mini progress-striped active" style="height: 10px; overflow-y: visible;">' + 
+					'<div class="bar ' + this.barClass + ' progress-bar progress-' + this.barClass +'" style="width: 0%;left: 0%"></div>' + 
+					'<span class="current-badge" style="position: absolute; top: -15px;"></span>' + 
+					'<span class="state-position badge" style="position: absolute; left: 0%; top: -5px;">0</span>';
 
 			iterSize = this.markers.length;
 			if (this.barSize != null) {
@@ -118,11 +119,11 @@
 				}				
 			}
 			
-			this.step = 100/iterSize;
+			iterLength = 100/iterSize;
 			for(var i = 0; i < iterSize; i++) {
 				var position = this.markers[i].position;
 				if (this.averageStep || (position == null)) {
-					position = this.step*(i+1);					
+					position = iterLength*(i+1);					
 				}
 
 				var badgeClass = this.markers[i].badgeClass;
@@ -130,13 +131,17 @@
 					var badgeClasses = ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', ''];
 					badgeClass = badgeClasses[i % (badgeClasses.length)];
 				}
-				template += '<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (position-1) + '%; top: -5px;">' + (i + 1) + '</span>';
+				
+				template += 
+					'<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (position-1) + '%; top: -5px;">' + (i+1) + 
+						'<div style="position: absolute; color: black; left: -1%;">' + ~~position + '%</div></span>';
 			}
-			this.element.html(template + '</div>').css("position", "relative");
+			template += '</div>'
+			this.element.html(template).css("position", "relative");
 		},
 
 		setPosition: function (position) {
-			position = parseInt(position);
+			position = ~~position;
 			if (position < 0)
 				position = 0;
 			if (position >= this.maximum) {
@@ -145,7 +150,6 @@
 			}
 
 			this.percent = this.position = position;
-			// this.percent = Math.ceil((this.position / this.maximum) * 100);
 			try {
 				this.element.find('.' + this.barClass).css('width', this.percent + "%");
 			} finally {
@@ -178,7 +182,17 @@
 			this.isOver = false;
 		},
 
+		setCurrentBadge: function () {
+			$(".current-badge", this.element).css('left', this.percent + '%');
+			if(this.percent > 0 && this.percent < 100) {
+				$(".current-badge", this.element).html(this.percent + '%');
+			} else {
+				$(".current-badge", this.element).html('');
+			}
+		},
+
 		_triggerPositionChanged: function () {
+			this.setCurrentBadge();
 			this.element.trigger({
 				type: "positionChanged",
 				position: this.position,
@@ -209,7 +223,7 @@
 		barSize: 4,
 		minimum: 0,
 		maximum: 100,
-		averageStep: true,
+		averageStep: false,
 		defaultBadge: true,
 		barClass: "bar-danger",
 		markers: 
