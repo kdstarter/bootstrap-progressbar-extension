@@ -19,11 +19,6 @@
 			this.setStep(options.step);
 		}
 
-		this.maximum = $.fn.progressbar.defaults.maximum;
-		if (hasOptions && typeof options.maximum == 'number') {
-			this.setMaximum(options.maximum);
-		}
-
 		this.averageStep = $.fn.progressbar.defaults.averageStep;
 		if (hasOptions && typeof options.averageStep == 'boolean') {
 			this.setAverageStep(options.averageStep);
@@ -39,16 +34,28 @@
 			this.setBarClass(options.barClass);
 		}
 
+		this.badgeClasses = $.fn.progressbar.defaults.badgeClasses;
+		if (hasOptions && typeof options.barClass == 'object') {
+			this.setBadgeClasses(options.badgeClasses);
+		}
+
 		this.markers = $.fn.progressbar.defaults.markers;
 		if (hasOptions && typeof options.markers == 'object') {
 			this.setMarkers(options.markers);
 		}
+		this.zoom_percent = $.fn.progressbar.defaults.zoom_percent;
+		this.setMaxPosition();
 
 		// this.barSize = $.fn.progressbar.defaults.barSize;
 		if (hasOptions && typeof options.barSize == 'number') {
 			this.setBarSize(options.barSize);
 		}
 		this.setTemplate();
+
+		this.maximum = $.fn.progressbar.defaults.maximum;
+		if (hasOptions && typeof options.maximum == 'number') {
+			this.setMaximum(options.maximum);
+		}
 
 		if (hasOptions && typeof options.minimum == 'number') {
 			this.setMinimum(options.minimum)
@@ -73,18 +80,34 @@
 			this.markers = markers;
 		},
 
+		setMaxPosition: function () {
+			this.max_position = this.markers[this.markers.length-1];
+			if(this.max_position > 100) {
+				this.zoom_percent = 100.0/this.max_position;
+				for(var i = 0; i < this.markers.length; i++) {
+					this.markers[i] *= this.zoom_percent; 
+				}
+			}
+		},
+
 		setBarClass: function (barClass) {
 			this.barClass = barClass;
 		},
 
+		setBadgeClasses: function (badgeClasses) {
+			this.badgeClasses = badgeClasses;
+		},
+
 		setMaximum: function (maximum) {
+			maximum *= this.zoom_percent;
 			if (maximum > 0 && maximum <= 100){
 				this.maximum = ~~maximum;
 			}
 		},
 
 		setMinimum: function (minimum) {
-			if (minimum > 0 && minimum < this.maximum) {
+			minimum *= this.zoom_percent;
+			if (minimum > 0 && minimum <= this.maximum) {
 				this.minimum = ~~minimum;
 			}
 		},
@@ -121,12 +144,12 @@
 			
 			iterLength = 100/iterSize;
 			for(var i = 0; i < iterSize; i++) {
-				var position = this.markers[i].position;
+				var position = this.markers[i];
 				if (this.averageStep || (position == null)) {
 					position = iterLength*(i+1);					
 				}
 
-				var badgeClass = this.markers[i].badgeClass;
+				var badgeClass = this.badgeClasses[i];
 				if(this.defaultBadge || (badgeClass == null)) {
 					var badgeClasses = ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', ''];
 					badgeClass = badgeClasses[i % (badgeClasses.length)];
@@ -220,18 +243,16 @@
 
 	$.fn.progressbar.defaults = {
 		step: 10,
-		barSize: 4,
+		barSize: 3,
 		minimum: 0,
 		maximum: 100,
+		zoom_percent: 1,
+		max_position: 100,
 		averageStep: false,
 		defaultBadge: true,
 		barClass: "bar-danger",
-		markers: 
-			[ { position: 25, badgeClass: "badge-info" },
-				{ position: 50, badgeClass: "badge-success" }, 
-				{ position: 75, badgeClass: "badge-warning" }, 
-				{ position: 100, badgeClass: "badge-important" }
-			]
+		markers: [33, 66, 100],
+		badgeClasses: ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', '']
 	};
 
 	$.fn.progressbar.Constructor = ProgressBar;

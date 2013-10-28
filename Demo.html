@@ -33,8 +33,10 @@
 		bar.progressbar({
 			step: 20,
 			minimum: 10,
-			maximum: 100,
-			barSize: 3			
+			maximum: 90,
+			barSize: 2,
+			// markers: [60, 100 ,200],
+			badgeClasses: ['badge-info']	
 		});
 
 		$('.step-btn').bind("click", function (e) {
