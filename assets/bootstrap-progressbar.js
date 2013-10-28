@@ -9,6 +9,8 @@
 		this.position = 0;
 		this.isOver = false;
 		this.isRunning = false;
+		this.loadedLabel = '';
+		this.changedLabel = '';
 
 		this.element = $(element);
 		var hasOptions = typeof options == 'object';
@@ -37,6 +39,11 @@
 		this.badgeClasses = $.fn.progressbar.defaults.badgeClasses;
 		if (hasOptions && typeof options.barClass == 'object') {
 			this.setBadgeClasses(options.badgeClasses);
+		}
+
+		this.markerLabels = $.fn.progressbar.defaults.markerLabels;
+		if (hasOptions && typeof options.markerLabels == 'object') {
+			this.setMarkerLabels(options.markerLabels);
 		}
 
 		this.markers = $.fn.progressbar.defaults.markers;
@@ -74,6 +81,10 @@
 
 		setBarSize: function (barSize) {
 			this.barSize = barSize;
+		},
+
+		setMarkerLabels: function (markerLabels) {
+			this.markerLabels = markerLabels;
 		},
 
 		setMarkers: function (markers) {
@@ -155,10 +166,12 @@
 					badgeClass = badgeClasses[i % (badgeClasses.length)];
 				}
 				
+				this._triggerLabelLoaded(i);
 				template += 
 					'<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (position-1) + '%; top: -5px;">' + (i+1) + 
-						'<div style="position: absolute; color: black; left: -1%;">' + ~~position + '%</div></span>';
+						'<div style="position: absolute; color: black; left: -1%;">' + this.loadedLabel + '</div></span>';
 			}
+			
 			template += '</div>'
 			this.element.html(template).css("position", "relative");
 		},
@@ -207,20 +220,27 @@
 
 		setCurrentBadge: function () {
 			$(".current-badge", this.element).css('left', (this.percent-1) + '%');
-			if(this.percent > 0 && this.percent < 100) {
-				$(".current-badge", this.element).html(this.percent + '%');
+			if(this.percent > 0 && this.percent <= 100) {
+				$(".current-badge", this.element).html(this.changedLabel);
 			} else {
 				$(".current-badge", this.element).html('');
 			}
 		},
 
-		_triggerPositionChanged: function () {
-			this.setCurrentBadge();
+		_triggerLabelLoaded: function (labelIndex) {
 			this.element.trigger({
-				type: "positionChanged",
-				position: this.position,
-				percent: this.percent
+				bar: this,
+				type: 'labelLoaded',
+				labelIndex: labelIndex
 			});
+		},
+
+		_triggerPositionChanged: function () {
+			this.element.trigger({
+				bar: this,
+				type: 'positionChanged'
+			});
+			this.setCurrentBadge();
 		}
 	};
 
@@ -252,6 +272,7 @@
 		defaultBadge: true,
 		barClass: "bar-danger",
 		markers: [33, 66, 100],
+		markerLabels: ['33', '66', '100'],
 		badgeClasses: ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', '']
 	};
 
