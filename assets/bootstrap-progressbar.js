@@ -183,7 +183,7 @@
 		},
 
 		setCurrentBadge: function () {
-			$(".current-badge", this.element).css('left', this.percent + '%');
+			$(".current-badge", this.element).css('left', (this.percent-1) + '%');
 			if(this.percent > 0 && this.percent < 100) {
 				$(".current-badge", this.element).html(this.percent + '%');
 			} else {
