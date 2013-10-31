@@ -13,60 +13,52 @@
 		this.changedLabel = '';
 
 		this.element = $(element);
-		var hasOptions = typeof options == 'object';
-		this.minimum = $.fn.progressbar.defaults.minimum;
-
 		this.step = $.fn.progressbar.defaults.step;
+		this.minimum = $.fn.progressbar.defaults.minimum;
+		this.maximum = $.fn.progressbar.defaults.maximum;
+		this.markers = $.fn.progressbar.defaults.markers;
+		this.barClass = $.fn.progressbar.defaults.barClass;
+		// this.barSize = $.fn.progressbar.defaults.barSize;
+		this.averageStep = $.fn.progressbar.defaults.averageStep;
+		this.zoom_percent = $.fn.progressbar.defaults.zoom_percent;
+		this.defaultBadge = $.fn.progressbar.defaults.defaultBadge;
+		this.badgeClasses = $.fn.progressbar.defaults.badgeClasses;
+		this.markerLabels = $.fn.progressbar.defaults.markerLabels;
+
+		var hasOptions = typeof options == 'object';
 		if (hasOptions && typeof options.step == 'number') {
 			this.setStep(options.step);
 		}
-
-		this.averageStep = $.fn.progressbar.defaults.averageStep;
 		if (hasOptions && typeof options.averageStep == 'boolean') {
 			this.setAverageStep(options.averageStep);
 		}
-
-		this.defaultBadge = $.fn.progressbar.defaults.defaultBadge;
 		if (hasOptions && typeof options.defaultBadge == 'boolean') {
 			this.setDefaultBadge(options.defaultBadge);
 		}
-
-		this.barClass = $.fn.progressbar.defaults.barClass;
 		if (hasOptions && typeof options.barClass == 'string') {
 			this.setBarClass(options.barClass);
 		}
-
-		this.badgeClasses = $.fn.progressbar.defaults.badgeClasses;
 		if (hasOptions && typeof options.barClass == 'object') {
 			this.setBadgeClasses(options.badgeClasses);
 		}
-
-		this.markerLabels = $.fn.progressbar.defaults.markerLabels;
 		if (hasOptions && typeof options.markerLabels == 'object') {
 			this.setMarkerLabels(options.markerLabels);
 		}
-
-		this.markers = $.fn.progressbar.defaults.markers;
 		if (hasOptions && typeof options.markers == 'object') {
 			this.setMarkers(options.markers);
 		}
-		this.zoom_percent = $.fn.progressbar.defaults.zoom_percent;
-		this.setMaxPosition();
 
-		// this.barSize = $.fn.progressbar.defaults.barSize;
+		this.setMaxPosition();
 		if (hasOptions && typeof options.barSize == 'number') {
 			this.setBarSize(options.barSize);
 		}
-		this.setTemplate();
-
-		this.maximum = $.fn.progressbar.defaults.maximum;
-		if (hasOptions && typeof options.maximum == 'number') {
-			this.setMaximum(options.maximum);
-		}
-
 		if (hasOptions && typeof options.minimum == 'number') {
 			this.setMinimum(options.minimum)
 		}
+		if (hasOptions && typeof options.maximum == 'number') {
+			this.setMaximum(options.maximum);
+		}
+		this.setTemplate();
 		this.reset();
 	};
 
@@ -102,12 +94,7 @@
 
 		setMaxPosition: function () {
 			this.max_position = this.markers[this.markers.length-1];
-			if(this.max_position > 100) {
-				this.zoom_percent = 100.0/this.max_position;
-				for(var i = 0; i < this.markers.length; i++) {
-					this.markers[i] *= this.zoom_percent; 
-				}
-			}
+			this.zoom_percent = 100.0/this.max_position;
 		},
 
 		setBarClass: function (barClass) {
@@ -119,16 +106,14 @@
 		},
 
 		setMaximum: function (maximum) {
-			maximum *= this.zoom_percent;
-			if (maximum > 0 && maximum <= 100){
-				this.maximum = ~~maximum;
+			if (maximum >= this.minimum && maximum <= this.max_position){
+				this.maximum = maximum;
 			}
 		},
 
 		setMinimum: function (minimum) {
-			minimum *= this.zoom_percent;
-			if (minimum > 0 && minimum <= this.maximum) {
-				this.minimum = ~~minimum;
+			if (minimum >= 0 && this.minimum <= this.max_position) {
+				this.minimum = minimum;
 			}
 		},
 
@@ -141,16 +126,15 @@
 		},
 
 		setStep: function (step) {
-			step = ~~step;
 			if(step <= 0)
 				step = 1;
-			this.step = ~~step;
+			this.step = step;
 		},
 
 		setTemplate: function () {
-			template = 
+			var template = 
 				'<div class="progress progress-mini progress-striped active" style="height: 10px; overflow-y: visible;">' + 
-					'<div class="bar ' + this.barClass + ' progress-bar progress-' + this.barClass +'" style="width: 0%;left: 0%"></div>' + 
+					'<div class="bar ' + this.barClass + ' progress-bar progress-' + this.barClass + '" style="width: 0%;left: 0%"></div>' + 
 					'<span class="current-badge" style="position: absolute; top: -15px;"></span>' + 
 					'<span class="state-position badge" style="position: absolute; left: 0%; top: -5px;">0</span>';
 
@@ -158,11 +142,10 @@
 			if (this.barSize != null) {
 				if (this.barSize > 0) {
 					iterSize = this.barSize;
-					this.averageStep = true;
 				}				
 			}
 			
-			iterLength = 100/iterSize;
+			iterLength = this.max_position/iterSize;
 			for(var i = 0; i < iterSize; i++) {
 				var position = this.markers[i];
 				if (this.averageStep || (position == null)) {
@@ -175,9 +158,10 @@
 					badgeClass = badgeClasses[i % (badgeClasses.length)];
 				}
 				
+				var percent = position*100.0/this.max_position;
 				this._triggerLabelLoaded(i);
 				template += 
-					'<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (position-1) + '%; top: -5px;">' + (i+1) + 
+					'<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (percent-1) + '%; top: -5px;">' + (i+1) + 
 						'<div style="position: absolute; color: black; left: -1%;">' + this.loadedLabel + '</div></span>';
 			}
 			
@@ -186,7 +170,6 @@
 		},
 
 		setPosition: function (position) {
-			position = ~~position;
 			if (position < 0)
 				position = 0;
 			if (position >= this.maximum) {
@@ -194,7 +177,8 @@
 				this.isOver = true;
 			}
 
-			this.percent = this.position = position;
+			this.position = position;
+			this.percent = this.position*100.0/this.max_position;
 			try {
 				this.element.find('.' + this.barClass).css('width', this.percent + "%");
 			} finally {
@@ -221,10 +205,10 @@
 
 		reset: function () {
 			this.position = this.minimum;
-			this.percent = this.minimum;
-			this._triggerPositionChanged();
-			this.element.find("." + this.barClass).css('width', this.minimum + "%");
+			this.percent = this.minimum*100.0/this.max_position;
+			this.element.find("." + this.barClass).css('width', this.percent + "%");
 			this.isOver = false;
+			this._triggerPositionChanged();
 		},
 
 		setCurrentBadge: function () {
@@ -275,13 +259,13 @@
 		barSize: 3,
 		minimum: 0,
 		maximum: 100,
-		zoom_percent: 1,
+		zoom_percent: 1.0,
 		max_position: 100,
 		averageStep: false,
 		defaultBadge: true,
-		barClass: "bar-danger",
-		markers: [33, 66, 100],
 		markerLabels: [''],
+		markers: [33, 66, 100],
+		barClass: "bar-danger",
 		badgeClasses: ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', '']
 	};
 

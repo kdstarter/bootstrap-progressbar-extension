@@ -31,20 +31,21 @@
 	$(function () {
 		bar = $('#progressbar');
 		bar.bind('positionChanged', function(event) {
-			event.bar.changedLabel = '当前' + event.bar.position/event.bar.zoom_percent + '人';
+			event.bar.changedLabel = '当前' + event.bar.position + '人';
 		})
 		bar.bind('labelLoaded', function(event) {
 			i = event.labelIndex;
-			event.bar.loadedLabel = event.bar.getMarker(i)/event.bar.zoom_percent+'人/￥'+event.bar.getMarkerLabel(i);
+			event.bar.loadedLabel = event.bar.getMarker(i)+'人/￥' + event.bar.getMarkerLabel(i);
 		})
 		bar.progressbar({
 			step: 20,
-			minimum: 0,
-			maximum: 180,
 			barSize: 3,
-			// markers: [60, 100 ,200],
+			minimum: 20,
+			maximum: 280,
+			// averageStep: true,
+			markers: [60, 150 ,300],
 			badgeClasses: ['badge-info'],
-			markerLabels: ['30', '66', '100']
+			markerLabels: ['60', '100', '300']
 		});
 
 		$('.step-btn').bind("click", function (e) {
