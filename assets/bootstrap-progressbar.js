@@ -66,8 +66,11 @@
 		constructor: ProgressBar,
 
 		stepIt: function () {
-			if (this.position < this.maximum)
-				this.position += this.step;
+			this.position += this.step;
+			if (this.position > this.maximum) {
+				this.position = this.maximum;
+				this.isOver = true;
+			}
 			this.setPosition(this.position);
 		},
 
@@ -108,11 +111,15 @@
 		setMaximum: function (maximum) {
 			if (maximum >= this.minimum && maximum <= this.max_position){
 				this.maximum = maximum;
+			} else {
+				this.maximum = this.max_position;
 			}
 		},
 
 		setMinimum: function (minimum) {
-			if (minimum >= 0 && this.minimum <= this.max_position) {
+			if (minimum >= this.max_position) {
+				this.minimum = this.max_position;
+			} else if (minimum >= 0) {
 				this.minimum = minimum;
 			}
 		},
@@ -170,14 +177,15 @@
 		},
 
 		setPosition: function (position) {
-			if (position < 0)
-				position = 0;
-			if (position >= this.maximum) {
-				position = this.maximum;
+			if (position < 0) {
+				this.position = 0;
+			} else if (position < this.max_position) {
+				this.position = position;
+			} else {
+				this.position = this.max_position;
 				this.isOver = true;
 			}
 
-			this.position = position;
 			this.percent = this.position*100.0/this.max_position;
 			try {
 				this.element.find('.' + this.barClass).css('width', this.percent + "%");
