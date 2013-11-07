@@ -57,6 +57,8 @@
 		}
 		if (hasOptions && typeof options.maximum == 'number') {
 			this.setMaximum(options.maximum);
+		} else {
+			this.setMaximum(this.max_position);
 		}
 		this.setTemplate();
 		this.reset();
@@ -176,6 +178,28 @@
 			this.element.html(template).css("position", "relative");
 		},
 
+		getPercent: function () {
+			if (!this.averageStep) {
+				this.percent = this.position*100.0 / this.max_position;
+			} else {
+				var stage = 0;
+				for (var i = 0; i < this.markers.length; i++) {
+					if (this.position <= this.markers[i]) {
+						stage = i;
+						break;
+					}
+				}
+				
+				if (stage == 0) {
+					var add_stage = this.position / this.markers[stage];
+				} else {
+					var add_stage = (this.position - this.markers[stage-1]) / (this.markers[stage] - this.markers[stage-1])
+				}
+				this.percent = (100.0 / this.markers.length) * (stage + add_stage);
+			}
+			return this.percent;
+		},
+
 		setPosition: function (position) {
 			if (position < 0) {
 				this.position = 0;
@@ -186,9 +210,8 @@
 				this.isOver = true;
 			}
 
-			this.percent = this.position*100.0/this.max_position;
 			try {
-				this.element.find('.' + this.barClass).css('width', this.percent + "%");
+				this.element.find('.' + this.barClass).css('width', this.getPercent() + "%");
 			} finally {
 				this._triggerPositionChanged();
 			}
@@ -213,8 +236,8 @@
 
 		reset: function () {
 			this.position = this.minimum;
-			this.percent = this.minimum*100.0/this.max_position;
-			this.element.find("." + this.barClass).css('width', this.percent + "%");
+			// this.percent = this.minimum*100.0/this.max_position;
+			this.element.find("." + this.barClass).css('width', this.getPercent() + "%");
 			this.isOver = false;
 			this._triggerPositionChanged();
 		},
@@ -269,7 +292,7 @@
 		maximum: 100,
 		zoom_percent: 1.0,
 		max_position: 100,
-		averageStep: false,
+		averageStep: true,
 		defaultBadge: true,
 		markerLabels: [''],
 		markers: [33, 66, 100],
