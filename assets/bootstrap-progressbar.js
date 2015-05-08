@@ -151,14 +151,14 @@
 			if (this.barSize != null) {
 				if (this.barSize > 0) {
 					iterSize = this.barSize;
-				}				
+				}
 			}
-			
+
 			iterLength = this.max_position/iterSize;
 			for(var i = 0; i < iterSize; i++) {
 				var position = this.markers[i];
 				if (this.averageStep || (position == null)) {
-					position = iterLength*(i+1);					
+					position = iterLength*(i+1);
 				}
 
 				var badgeClass = this.badgeClasses[i];
@@ -166,14 +166,14 @@
 					var badgeClasses = ['badge-info', 'badge-success', 'badge-warning', 'badge-important', 'badge-inverse', ''];
 					badgeClass = badgeClasses[i % (badgeClasses.length)];
 				}
-				
+
 				var percent = position*100.0/this.max_position;
 				this._triggerLabelLoaded(i);
 				template += 
 					'<span class="badge ' + badgeClass + '" style="position: absolute; left: ' + (percent-1) + '%; top: -5px;">' + (i+1) + 
 						'<div style="position: absolute; color: black; left: -1%;">' + this.loadedLabel + '</div></span>';
 			}
-			
+
 			template += '</div>'
 			this.element.html(template).css("position", "relative");
 		},
@@ -189,7 +189,7 @@
 						break;
 					}
 				}
-				
+
 				if (stage == 0) {
 					var add_stage = this.position / this.markers[stage];
 				} else {

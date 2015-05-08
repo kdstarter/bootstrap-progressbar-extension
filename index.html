@@ -41,8 +41,8 @@
 			step: 20,
 			barSize: 3,
 			minimum: 4,
-			maximum: 280,
-			// averageStep: false,
+			maximum: 300,
+			averageStep: false,
 			markers: [6, 50, 300],
 			badgeClasses: ['badge-info'],
 			markerLabels: ['60', '100', '300']
@@ -55,7 +55,7 @@
 		$('.reset-btn').bind("click", function (e) {
 			bar.progressbar('reset');
 		});
-		
+
 		$('.start-btn').bind("click", function (e) {
 			bar.progressbar('start');
 		});
